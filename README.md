@@ -28,9 +28,14 @@ Datasets are saved into folder "openDatasets_prepared/".
 -------------------------------------------
 2. Run Experiments
 -------------------------------------------
-Run proposed method (with fixed prespecified $\nu$ = 0.2):
+Run proposed method with fixed prespecified $\nu$ = 0.2 (on synthetic data with 10% outliers):
 ```bash
 python runExperiments.py Friedman_n100 trimmed_informative_nu_withoutCV focused projectedGradient 0.1 0.2
+```
+
+Run proposed method without prespecified $\nu$ (on synthetic data with 10% outliers):
+```bash
+python runExperiments.py Friedman_n100 trimmed_residual_nu focused projectedGradient 0.1
 ```
 
 Run student-t GP:

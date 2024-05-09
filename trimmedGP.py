@@ -60,7 +60,7 @@ def residualNuTrimmedGP(full_X, full_y, maxNrOutlierSamples, method):
     return maxNrOutlierSamples_new, allPValues_logScale, allEstimatedNoiseVariances, standardizedResiduals
 
 
-def getFinalModelForPrediction(full_X, full_y, maxNrOutlierSamples, all_sigmaEstimates, method):
+def getFinalModelForPrediction(full_X, full_y, maxNrOutlierSamples, sigmaEstimate, method):
 
     if method == "projectedGradient" or method.startswith("greedy"):
          _, _, gpModel, _, _ = trainTrimmedGP(full_X, full_y, maxNrOutlierSamples, commonSettings.getSigmaEstimationTypes(), method)
@@ -69,8 +69,6 @@ def getFinalModelForPrediction(full_X, full_y, maxNrOutlierSamples, all_sigmaEst
         # gpModel = LMD(full_X, full_y, maxNrOutlierSamples)
     else:
         assert(False)
-
-    sigmaEstimate = all_sigmaEstimates[EstimationType.LIKELIHOOD_NOISE]
 
     if sigmaEstimate > commons_GP.LOWER_BOUND_ON_SIGMA:
         gpModel.likelihood.noise = sigmaEstimate ** 2

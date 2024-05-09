@@ -24,6 +24,8 @@ import commons_GP
 import trimmedGP
 import gpytorch
 
+import math
+
 # print("GPyTorch - Version = ", gpytorch.__version__)
 # print("PyTorch - Version = ", torch.__version__)
 
@@ -238,7 +240,7 @@ for NOISE_TYPE in ALL_NOISE_TYPES:
                     estimated_maxNrOutlierSamples, allPValues_logScale, allEstimatedNoiseVariances, standardizedResiduals = trimmedGP.residualNuTrimmedGP(X_train, y_train, maxNrOutlierSamples = estimated_maxNrOutlierSamples, method = OPTIMIZATION_MODE)
                     all_estimated_nus.append(estimated_maxNrOutlierSamples / X_train.shape[0])
                     if all_estimated_nus[-2] <= all_estimated_nus[-1]:
-                        gpModel = trimmedGP.getFinalModelForPrediction(X_train, y_train, estimated_maxNrOutlierSamples, allEstimatedNoiseVariances, method = OPTIMIZATION_MODE)
+                        gpModel = trimmedGP.getFinalModelForPrediction(X_train, y_train, estimated_maxNrOutlierSamples, sigmaEstimate = math.sqrt(allEstimatedNoiseVariances[EstimationType.LIKELIHOOD_NOISE]), method = OPTIMIZATION_MODE)
                         break
                 
                 allFinalNuEstimates[foldId] = all_estimated_nus[-1]
@@ -253,7 +255,7 @@ for NOISE_TYPE in ALL_NOISE_TYPES:
                 # proposed method with fixed nu, whereas variance is estimated using cross-validation
 
                 _, allPValues_logScale, allEstimatedNoiseVariances, standardizedResiduals = trimmedGP.residualNuTrimmedGP(X_train, y_train, maxNrOutlierSamples = NR_OUTLIER_UPPER_BOUND, method = OPTIMIZATION_MODE)
-                gpModel = trimmedGP.getFinalModelForPrediction(X_train, y_train, NR_OUTLIER_UPPER_BOUND, allEstimatedNoiseVariances, method = OPTIMIZATION_MODE)
+                gpModel = trimmedGP.getFinalModelForPrediction(X_train, y_train, NR_OUTLIER_UPPER_BOUND, sigmaEstimate = math.sqrt(allEstimatedNoiseVariances[EstimationType.LIKELIHOOD_NOISE]), method = OPTIMIZATION_MODE)
                 allAverageMLL[foldId] = gpModel.getMLL()
 
             elif method == "trimmed_informative_nu_withoutCV":
@@ -283,7 +285,7 @@ for NOISE_TYPE in ALL_NOISE_TYPES:
                 y_cleanTest = commonSettings.getTorchTensor(y_cleanTest)
                 
                 all_NLL[foldId], all_MSLL[foldId], all_RMSE[foldId], all_MedianAbsoluteError[foldId] = gpModel.evaluatePredictions(X_cleanTest, y_cleanTest)
-        
+
 
         all_allEstimatedNoiseVariances[foldId] = allEstimatedNoiseVariances
         all_allPValues_logScale[foldId] = allPValues_logScale
